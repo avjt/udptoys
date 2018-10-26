@@ -5,7 +5,7 @@
 WARNINGS = -Wall -W -Wno-unused-parameter 
 
 # CC = gcc $(WARNINGS) -g
-# CC = gcc $(WARNINGS) -g -O3
+CC = gcc $(WARNINGS) -g -O3
 # CC = gcc $(WARNINGS) -g -fprofile-arcs -ftest-coverage
 # CC = gcc $(WARNINGS) -g
 # CC = gcc $(WARNINGS) -g -DNDEBUG

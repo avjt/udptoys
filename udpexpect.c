@@ -14,7 +14,7 @@
 
 int main( int C, char **V )
 {
-	int	sd, N, r, i, fromlen;
+	int	sd, r, i, fromlen;
 	struct	sockaddr_in
 		address, from;
 	unsigned char
@@ -54,7 +54,7 @@ int main( int C, char **V )
 	}
 
 	fromlen = sizeof(struct sockaddr_in);
-	r = recvfrom( sd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&from, &fromlen );
+	r = recvfrom( sd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&from, (socklen_t *) &fromlen );
 	if( r < 0 ) {
 		perror( "recvfrom" );
 		return 1;
