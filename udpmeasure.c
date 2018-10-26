@@ -16,7 +16,10 @@
 
 unsigned long long
 	bytes = 0,
-	packets = 0;
+	packets = 0,
+	turn = 0;
+
+const char *pattern = "-\\|/";
 
 int main( int C, char **V )
 {
@@ -71,7 +74,9 @@ int main( int C, char **V )
 		gettimeofday( &now, 0 );
 
 		if( (now.tv_sec > target.tv_sec) || ((now.tv_sec == target.tv_sec) && (now.tv_usec > target.tv_usec)) ) {
-			fprintf(stderr, "%9llu P/s, %12llu B/s, %13llu b/s\r", packets, bytes, 8*bytes);
+			fprintf(stderr, "%c %9llu P/s, %12llu B/s, %13llu b/s\r", pattern[turn], packets, bytes, 8*bytes);
+
+			turn = (turn + 1) % 4;
 			bytes = 0;
 			packets = 0;
 			target = now;
