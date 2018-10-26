@@ -21,6 +21,8 @@ EXE = \
 	udpsend \
 	udpreceive \
 	udpreflect \
+	udpmeasure \
+	udpsilent \
 	udpexpect 
 
 ## Target ####################################################################

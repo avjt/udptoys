@@ -16,7 +16,7 @@ int main( int C, char **V )
 	int	rsd;
 	struct	sockaddr_in
 		address;
-	int	N, r, i;
+	int	r;
 	unsigned char
 		*buffer;
 
@@ -51,26 +51,10 @@ int main( int C, char **V )
 		int	fromlen;
 
 		fromlen = sizeof(struct sockaddr_in);
-		r = recvfrom( rsd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&from, &fromlen );
+		r = recvfrom( rsd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&from, (socklen_t *) &fromlen );
 		if( r < 0 ) {
 			perror( "recvfrom" );
 			return 1;
 		}
-
-		fprintf( stderr, "%s:%hu %d bytes <", inet_ntoa(from.sin_addr), ntohs(from.sin_port), r );
-		for( i=0; i<r; i++ ) {
-			int	c = buffer[i];
-
-			if( !c ) {
-				break;
-			}
-
-			if( isprint(c) ) {
-				putc(c, stderr);
-			} else {
-				putc('.', stderr);
-			}
-		}
-		fprintf( stderr, ">\n" );
 	}
 }
