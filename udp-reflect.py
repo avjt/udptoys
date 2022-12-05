@@ -1,8 +1,6 @@
 #!/usr/bin/python3 -u
 
 import socket
-import threading
-import time
 import datetime
 import sys
 import os
