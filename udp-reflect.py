@@ -25,6 +25,9 @@ u.bind( (my_ip, my_port) )
 while True:
 	try:
 		data, address = u.recvfrom(8192)
+	except KeyboardInterrupt:
+		print('[interrupted]')
+		sys.exit(1)
 	except:
 		print('[receive error]')
 		continue
