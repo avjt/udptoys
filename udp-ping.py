@@ -13,6 +13,9 @@ def do_receive(u):
 	while True:
 		try:
 			data, address = u.recvfrom(8192)
+		except KeyboardInterrupt:
+			print('[interrupted]')
+			sys.exit(1)
 		except:
 			print('[receive error]')
 			continue
@@ -50,6 +53,9 @@ threading.Thread(target=do_receive, args=(u,), daemon=True).start()
 while True:
 	try:
 		u.sendto( bytes('ping', 'ascii'), (target_ip, target_port) )
+	except KeyboardInterrupt:
+		print('[interrupted]')
+		sys.exit(1)
 	except:
 		print('[send error]')
 		continue
