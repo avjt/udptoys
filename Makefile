@@ -23,6 +23,7 @@ EXE = \
 	udpreflect \
 	udpmeasure \
 	udpsilent \
+	udpping \
 	udpexpect 
 
 ## Target ####################################################################
