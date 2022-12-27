@@ -184,6 +184,8 @@ int slave( const char *listen_port_ )
 	}
 
 	for( ; ; ) {
+		char *to_ip_, *to_port_, *B = (char *) buffer;
+
 		fromlen = sizeof(struct sockaddr_in);
 		if( (r = recvfrom( rsd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&from, (socklen_t *) &fromlen )) < 0 ) {
 			perror( "recvfrom" );
@@ -191,6 +193,11 @@ int slave( const char *listen_port_ )
 		}
 
 		dump(buffer, r, &from);
+
+		to_ip_ = strtok(B, ":");
+		to_port_ = strtok(0, ":");
+		fprintf(stderr, "<%s> <%s>\n", to_ip_, to_port_);
+		
 	}
 
 	//memset( &to, 0, sizeof(to) );
