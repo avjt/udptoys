@@ -41,12 +41,13 @@ void dump(const unsigned char *B, int L, const struct sockaddr_in *A)
 void usage( const char *c )
 {
 	fprintf( stderr, "Usage:\n" );
-	fprintf( stderr, "  %s client <to-ip> <to-port>\n", c );
+	fprintf( stderr, "  %s client <to-ip> <to-port> [ <to-ip> <to-port> [...] ]\n", c );
 	fprintf( stderr, "  %s server <listen-port> <to-host> <to-port>\n", c );
 	fprintf( stderr, "  %s slave <listen-port>\n", c );
 }
 
-int client( const char *to_ip_, const char *to_port_ )
+// int client( const char *to_ip_, const char *to_port_ )
+int client( int C, char **V )
 {
 	int	sd;
 	struct	sockaddr_in
@@ -61,17 +62,24 @@ int client( const char *to_ip_, const char *to_port_ )
 		return 1;
 	}
 
-	memset( &to, 0, sizeof(to) );
-	to.sin_family = AF_INET;
-	to.sin_port = htons(atoi(to_port_));
-	to.sin_addr.s_addr = inet_addr(to_ip_);
+	while( C > 1 ) {
+		const char *to_ip_ = V[0], *to_port_ = V[1];
 
-	sprintf( B, "%s:%hu:%s", inet_ntoa(to.sin_addr), ntohs(to.sin_port), "client" );
-	r = strlen(B);
+		memset( &to, 0, sizeof(to) );
+		to.sin_family = AF_INET;
+		to.sin_port = htons(atoi(to_port_));
+		to.sin_addr.s_addr = inet_addr(to_ip_);
 
-	if( sendto( sd, B, r, 0, (struct sockaddr *) &to, sizeof(to) ) < 0 ) {
-		perror( "sendto" );
-		return 1;
+		sprintf( B, "%s:%hu:%s", inet_ntoa(to.sin_addr), ntohs(to.sin_port), "client" );
+		r = strlen(B);
+
+		if( sendto( sd, B, r, 0, (struct sockaddr *) &to, sizeof(to) ) < 0 ) {
+			perror( "sendto" );
+			return 1;
+		}
+
+		V += 2;
+		C -= 2;
 	}
 
 	T.tv_sec = 5;
@@ -228,7 +236,7 @@ int main( int C, char **V )
 			return 1;
 		}
 
-		return client( V[2], V[3] );
+		return client( C - 2, V + 2 );
 	} else if( !strcmp(V[1], "server") ) {
 		if( C < 5 ) {
 			fprintf(stderr, "Not enough parameters for subcommand <%s>\n\n", V[1]);
