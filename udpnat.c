@@ -46,7 +46,6 @@ void usage( const char *c )
 	fprintf( stderr, "  %s slave <listen-port>\n", c );
 }
 
-// int client( const char *to_ip_, const char *to_port_ )
 int client( int C, char **V )
 {
 	int	sd;
