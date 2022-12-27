@@ -42,7 +42,7 @@ void usage( const char *c )
 {
 	fprintf( stderr, "Usage:\n" );
 	fprintf( stderr, "  %s client <to-ip> <to-port> [ <to-ip> <to-port> [...] ]\n", c );
-	fprintf( stderr, "  %s server <listen-port> <to-host> <to-port>\n", c );
+	fprintf( stderr, "  %s server <listen-port> [ <slave-ip> <slave-port> ]\n", c );
 	fprintf( stderr, "  %s slave <listen-port>\n", c );
 }
 
@@ -108,12 +108,33 @@ int client( int C, char **V )
 	return 0;
 }
 
-int server( const char *listen_port_, const char *to_ip_, const char *to_port_ )
+int server( int C, char **V )
 {
 	int	rsd, tsd;
 	struct	sockaddr_in
 		to, from, address;
-	int	fromlen, r;
+	int	fromlen, r, relay = 0;
+	const char
+		*listen_port_, *to_ip_, *to_port_;
+
+	listen_port_ = V[0];
+
+	if( C == 3 ) {
+		to_ip_ = V[1];
+		to_port_ = V[2];
+
+		relay = 1;
+
+		memset( &to, 0, sizeof(to) );
+		to.sin_family = AF_INET;
+		to.sin_port = htons(atoi(to_port_));
+		to.sin_addr.s_addr = inet_addr(to_ip_);
+
+		if( (tsd = socket(PF_INET, SOCK_DGRAM, 0))  < 0 ) {
+			perror( "socket:t" );
+			return 1;
+		}
+	}
 
 	if( (rsd = socket(PF_INET, SOCK_DGRAM, 0))  < 0 ) {
 		perror( "socket:r" );
@@ -125,18 +146,8 @@ int server( const char *listen_port_, const char *to_ip_, const char *to_port_ )
 	address.sin_port = htons(atoi(listen_port_));
 	address.sin_addr.s_addr = INADDR_ANY;
 
-	memset( &to, 0, sizeof(to) );
-	to.sin_family = AF_INET;
-	to.sin_port = htons(atoi(to_port_));
-	to.sin_addr.s_addr = inet_addr(to_ip_);
-
 	if( bind( rsd, (struct sockaddr *)&address, sizeof(struct sockaddr_in) ) < 0 ) {
 		perror( "bind" );
-		return 1;
-	}
-
-	if( (tsd = socket(PF_INET, SOCK_DGRAM, 0))  < 0 ) {
-		perror( "socket:t" );
 		return 1;
 	}
 
@@ -159,9 +170,11 @@ int server( const char *listen_port_, const char *to_ip_, const char *to_port_ )
 			return 1;
 		}
 
-		if( sendto( tsd, buffer, r, 0, (struct sockaddr *) &to, sizeof(to) ) < 0 ) {
-			perror( "sendto:t" );
-			return 1;
+		if( relay ) {
+			if( sendto( tsd, buffer, r, 0, (struct sockaddr *) &to, sizeof(to) ) < 0 ) {
+				perror( "sendto:t" );
+				return 1;
+			}
 		}
 	}
 
@@ -229,24 +242,25 @@ int main( int C, char **V )
 	}
 
 	if( !strcmp(V[1], "client") ) {
-		if( C < 4 ) {
-			fprintf(stderr, "Not enough parameters for subcommand <%s>\n\n", V[1]);
+		if( (C < 4) || (C % 2) ) {
+			fprintf(stderr, "Incorrect parameter count for subcommand <%s>\n\n", V[1]);
 			usage( V[0] );
 			return 1;
 		}
 
 		return client( C - 2, V + 2 );
 	} else if( !strcmp(V[1], "server") ) {
-		if( C < 5 ) {
-			fprintf(stderr, "Not enough parameters for subcommand <%s>\n\n", V[1]);
+		if( (C != 3) || (C != 5) ) {
+			fprintf(stderr, "Incorrect parameter count for subcommand <%s>\n\n", V[1]);
 			usage( V[0] );
 			return 1;
 		}
 
-		return server( V[2], V[3], V[4] );
+		// return server( V[2], V[3], V[4] );
+		return server( C - 2, V + 2 );
 	} else if( !strcmp(V[1], "slave") ) {
-		if( C < 3 ) {
-			fprintf(stderr, "Not enough parameters for subcommand <%s>\n\n", V[1]);
+		if( C != 3 ) {
+			fprintf(stderr, "Incorrect parameter count for subcommand <%s>\n\n", V[1]);
 			usage( V[0] );
 			return 1;
 		}
