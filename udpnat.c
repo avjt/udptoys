@@ -66,7 +66,7 @@ int client( const char *to_ip_, const char *to_port_ )
 	to.sin_port = htons(atoi(to_port_));
 	to.sin_addr.s_addr = inet_addr(to_ip_);
 
-	sprintf( B, "%s:%hu", inet_ntoa(to.sin_addr), ntohs(to.sin_port) );
+	sprintf( B, "%s:%hu:%s", inet_ntoa(to.sin_addr), ntohs(to.sin_port), "client" );
 	r = strlen(B);
 
 	if( sendto( sd, B, r, 0, (struct sockaddr *) &to, sizeof(to) ) < 0 ) {
@@ -144,7 +144,7 @@ int server( const char *listen_port_, const char *to_ip_, const char *to_port_ )
 
 		dump(buffer, r, &from);
 
-		sprintf( B, "%s:%hu", inet_ntoa(from.sin_addr), ntohs(from.sin_port) );
+		sprintf( B, "%s:%hu:%s", inet_ntoa(from.sin_addr), ntohs(from.sin_port), "server" );
 		r = strlen(B);
 
 		if( sendto( rsd, buffer, r, 0, (struct sockaddr *) &from, sizeof(from) ) < 0 ) {
@@ -202,7 +202,7 @@ int slave( const char *listen_port_ )
 		to.sin_port = htons(atoi(to_port_));
 		to.sin_addr.s_addr = inet_addr(to_ip_);
 
-		sprintf( B, "%s:%hu", inet_ntoa(from.sin_addr), ntohs(from.sin_port) );
+		sprintf( B, "%s:%hu:%s", inet_ntoa(from.sin_addr), ntohs(from.sin_port), "slave" );
 		r = strlen(B);
 
 		if( sendto( rsd, buffer, r, 0, (struct sockaddr *) &to, sizeof(to) ) < 0 ) {
