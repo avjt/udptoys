@@ -250,7 +250,7 @@ int main( int C, char **V )
 
 		return client( C - 2, V + 2 );
 	} else if( !strcmp(V[1], "server") ) {
-		if( (C != 3) || (C != 5) ) {
+		if( (C != 3) && (C != 5) ) {
 			fprintf(stderr, "Incorrect parameter count for subcommand <%s>\n\n", V[1]);
 			usage( V[0] );
 			return 1;
