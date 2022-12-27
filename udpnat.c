@@ -11,7 +11,7 @@
 #include	<netinet/in.h>
 #include	<arpa/inet.h>
 
-#define	BUFFERSIZE	16384
+#define	BUFFERSIZE	32768
 
 unsigned char buffer[BUFFERSIZE];
 
