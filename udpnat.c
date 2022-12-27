@@ -57,7 +57,7 @@ int client( const char *to_ip_, const char *to_port_ )
 		T;
 
 	if( (sd = socket(PF_INET, SOCK_DGRAM, 0))  < 0 ) {
-		perror( "socket:r" );
+		perror( "socket" );
 		return 1;
 	}
 
@@ -70,7 +70,7 @@ int client( const char *to_ip_, const char *to_port_ )
 	r = strlen(B);
 
 	if( sendto( sd, B, r, 0, (struct sockaddr *) &to, sizeof(to) ) < 0 ) {
-		perror( "sendto:t" );
+		perror( "sendto" );
 		return 1;
 	}
 
@@ -153,7 +153,7 @@ int server( const char *listen_port_, const char *to_ip_, const char *to_port_ )
 		}
 
 		if( sendto( tsd, buffer, r, 0, (struct sockaddr *) &to, sizeof(to) ) < 0 ) {
-			perror( "sendto:r" );
+			perror( "sendto:t" );
 			return 1;
 		}
 	}
@@ -169,7 +169,7 @@ int slave( const char *listen_port_ )
 	int	fromlen, r;
 
 	if( (rsd = socket(PF_INET, SOCK_DGRAM, 0))  < 0 ) {
-		perror( "socket:r" );
+		perror( "socket" );
 		return 1;
 	}
 
@@ -198,12 +198,19 @@ int slave( const char *listen_port_ )
 		to_port_ = strtok(0, ":");
 		fprintf(stderr, "<%s> <%s>\n", to_ip_, to_port_);
 		
-	}
+		memset( &to, 0, sizeof(to) );
+		to.sin_family = AF_INET;
+		to.sin_port = htons(atoi(to_port_));
+		to.sin_addr.s_addr = inet_addr(to_ip_);
 
-	//memset( &to, 0, sizeof(to) );
-	//to.sin_family = AF_INET;
-	//to.sin_port = htons(atoi(to_port_));
-	//to.sin_addr.s_addr = inet_addr(to_ip_);
+		sprintf( B, "%s:%hu", inet_ntoa(from.sin_addr), ntohs(from.sin_port) );
+		r = strlen(B);
+
+		if( sendto( rsd, buffer, r, 0, (struct sockaddr *) &to, sizeof(to) ) < 0 ) {
+			perror( "sendto" );
+			return 1;
+		}
+	}
 
 	return 0;
 }
@@ -247,58 +254,3 @@ int main( int C, char **V )
 
 }
 
-/*
-int main( int C, char **V )
-{
-	int	rsd;
-	struct	sockaddr_in
-		to;
-	int	r, i;
-	unsigned char
-		*buffer;
-	struct timeval
-		T;
-
-	if( C != 4 ) {
-		fprintf( stderr, "Usage: %s <host> <port> <message>\n", V[0] );
-		return 1;
-	}
-
-	if( (buffer = (unsigned char *) malloc(BUFFERSIZE)) == NULL) {
-		perror("malloc");
-	}
-
-	rsd = socket( PF_INET, SOCK_DGRAM, 0 );
-	if( rsd < 0 ) {
-		perror( "socket:r" );
-		exit( 1 );
-	}
-
-	T.tv_sec = 5;
-	T.tv_usec = 0;
-
-	if( setsockopt(rsd, SOL_SOCKET, SO_RCVTIMEO, &T, sizeof(T)) < 0 ) {
-		perror( "setsockopt:SO_RCVTIMEO" );
-		abort();
-	}
-
-	memset( &to, 0, sizeof(to) );
-	to.sin_family = AF_INET;
-	to.sin_port = htons(atoi(V[2]));
-	to.sin_addr.s_addr = inet_addr(V[1]);
-
-	for( ; ; ) {
-		fromlen = sizeof(struct sockaddr_in);
-		r = recvfrom( rsd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&from, (socklen_t *) &fromlen );
-		if( r < 0 ) {
-			if( errno == EAGAIN ) {
-				fprintf( stderr, "[timeout]\n" );
-				continue;
-			} else {
-				perror( "recvfrom" );
-				return 1;
-			}
-		}
-	}
-}
-*/
