@@ -134,6 +134,8 @@ int server( const char *listen_port_, const char *to_ip_, const char *to_port_ )
 	}
 
 	for( ; ; ) {
+		char	*B = (char *) buffer;
+
 		fromlen = sizeof(struct sockaddr_in);
 		if( (r = recvfrom( rsd, buffer, BUFFERSIZE, 0, (struct sockaddr *)&from, (socklen_t *) &fromlen )) < 0 ) {
 			perror( "recvfrom" );
@@ -141,6 +143,9 @@ int server( const char *listen_port_, const char *to_ip_, const char *to_port_ )
 		}
 
 		dump(buffer, r, &from);
+
+		sprintf( B, "%s:%hu", inet_ntoa(from.sin_addr), ntohs(from.sin_port) );
+		r = strlen(B);
 
 		if( sendto( rsd, buffer, r, 0, (struct sockaddr *) &from, sizeof(from) ) < 0 ) {
 			perror( "sendto:r" );
