@@ -196,7 +196,6 @@ int slave( const char *listen_port_ )
 
 		to_ip_ = strtok(B, ":");
 		to_port_ = strtok(0, ":");
-		fprintf(stderr, "<%s> <%s>\n", to_ip_, to_port_);
 		
 		memset( &to, 0, sizeof(to) );
 		to.sin_family = AF_INET;
