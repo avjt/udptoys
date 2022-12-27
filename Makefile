@@ -24,6 +24,7 @@ EXE = \
 	udpmeasure \
 	udpsilent \
 	udpping \
+	udpnat \
 	udpexpect 
 
 ## Target ####################################################################
